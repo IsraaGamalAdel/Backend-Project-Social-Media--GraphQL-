@@ -7,6 +7,8 @@ import { globalErrorHandling } from './utils/response/error.response.js';
 import cors from 'cors'; // upload Deployment 
 import helmet from 'helmet';
 import morgan from 'morgan';
+import { createHandler } from 'graphql-http/lib/use/express';
+import { schema } from './modules/modules.schema.js';
 
 
 const bootstrap = async (app , express) => {
@@ -25,6 +27,7 @@ const bootstrap = async (app , express) => {
         })
     });
 
+    app.use('/graphql' , createHandler({schema}));
     app.use('/auth' , authController);
     app.use('/users' , usersController);
     app.use('/posts' , postController)

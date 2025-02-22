@@ -70,6 +70,27 @@ export const validation = (scheme) => {
 };
 
 
+
+export const validationGraphQL = async ({scheme , args={}} = {} ) => {
+
+        const validationError = scheme.validate( args , {abortEarly: false});
+        if(validationError.error){
+            throw new Error(JSON.stringify({
+                message:"Validation Error in the check input" ,
+                details: validationError.error.details[0].message
+            }));
+        }
+    return true;
+};
+
+
+
+
+
+
+
+
+
 // طريقة حل تانية ودة احسن  بس عيبها انها بتاخد وقت بس (بس استعمل الطريقة الى تريحنى )
 export const validation_old = (scheme) => {
     return (req , res , next) => {

@@ -1,5 +1,6 @@
 import joi from 'joi';
 import { generalFields } from '../../middleware/validation.middleware.js';
+import { token } from 'morgan';
 
 export const createPostValidation = joi.object().keys({
     content: joi.string().min(2).max(20000).trim(),
@@ -24,6 +25,12 @@ export const freezePostValidation = joi.object().keys({
 export const likePostValidation = joi.object().keys({
     postId: generalFields.id.required(),
     action: joi.string().valid('like' , 'unlike').default('like'),
+}).required();
+
+export const likePostQraphQLValidation = joi.object().keys({
+    postId: generalFields.id.required(),
+    action: joi.string().valid('like' , 'unlike').default('like'),
+    token: joi.string().required(),
 }).required();
 
 
