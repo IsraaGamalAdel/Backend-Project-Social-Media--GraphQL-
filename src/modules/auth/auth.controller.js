@@ -13,6 +13,10 @@ router.patch("/confirm_email", validation(validators.confirmEmailValidationSchem
 router.patch("/sendCode_confirm_email", validation(validators.sendCodeOTPVerifyConfirmEmailValidationSchema) , registrationService.sendCodeOTPVerifyConfirmEmail);
 
 router.post("/login", validation(validators.loginValidationSchema) , loginService.login);
+
+// login to email
+router.post("/loginWithGmail" , loginService.signIn);
+
 router.get("/refreshToken" , loginService.refreshToken);
 
 // forgotPassword OTP

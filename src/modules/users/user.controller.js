@@ -83,6 +83,12 @@ router.delete('/profile',authentication(), authorization(endPoint.profile), user
 router.get('/profile/:userId', validation(validators.shareProfileValidation) , authentication() ,userService.shareProfile);
 
 
+router.patch('/profile/addFriends/:friendId' , 
+    authentication() ,  
+    userService.addFriends
+);
+
+
 
 
 export default router;

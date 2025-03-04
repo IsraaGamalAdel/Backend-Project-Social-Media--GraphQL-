@@ -22,14 +22,14 @@ const users =  new Schema({
         required: [true , `please enter your name`],
         minlength: [2 , `userName minimum  2 characters`],
         maxlength: 50,
-        validate: {
-            validator: function(v){
-                if(v == "admin"){
-                    return false
-                }
-            },
-            message: "userName can't be admin"
-        }
+        // validate: {
+        //     validator: function(v){
+        //         if(v == "admin"){
+        //             return false
+        //         }
+        //     },
+        //     message: "userName can't be admin"
+        // }
     },
     email:{
         type: String,
@@ -87,6 +87,8 @@ const users =  new Schema({
     otpAttempts: Number,
     viewers: [{ userId: {type:Types.ObjectId , ref: "User"}, time: Date }],
     // viewers: [{ userId: {type:Types.ObjectId , ref: "User"}, time: [Date] }],
+
+    friends : [{type:Types.ObjectId , ref: "User"}],
     
     modifiedBy: {type:Types.ObjectId , ref: "User"},
     blockedUsers: [{type:Types.ObjectId , ref: "User"}],
@@ -97,3 +99,5 @@ const users =  new Schema({
 
 export const userModel = mongoose.models.User || model("User" , users);
 
+
+export const socketConnection = new Map();

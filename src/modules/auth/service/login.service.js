@@ -8,6 +8,83 @@ import * as dbService from '../../../DB/db.service.js';
 
 
 
+
+//signIn With Email
+export const signIn = errorAsyncHandler(
+    async (req, res, next) => {
+        const { idToken } = req.body;
+
+        const client = new OAuth2Client();
+        async function verify() {
+            const ticket = await client.verifyIdToken({
+                idToken,
+                audience: process.env.WEB_CLIENT_ID
+            });
+            const payload = ticket.getPayload();
+            return payload
+        }
+        const payload = await verify()
+
+        if(!payload.email_verified){
+            return next(new Error("In-valid account ID Google payload", { cause: 404 }));
+        }
+
+        let user = await dbService.findOne({
+            model: userModel,
+            filter: { email: payload.email },
+        });
+
+        if (!user) {
+            user = await dbService.create({
+                model: userModel,
+                data: {
+                    userName: payload.name,
+                    email: payload.email,
+                    confirmEmail: payload.email_verified,
+                    // image: payload.picture,
+                    provider: providerTypes.google
+                }
+            })
+        }
+
+        if (user.provider != providerTypes.google) {
+            return next(new Error("In-valid provider type", { cause: 400 }));        
+        }
+
+        const accessToken = generateToken2({
+            payload: { id: user._id, isLoggedIn: true },
+            signature:
+                user.role === roleTypes.Admin
+                    ? process.env.SYSTEM_ACCESS_TOKEN
+                    : process.env.USER_ACCESS_TOKEN,
+            options: { expiresIn: "1h" },
+        });
+
+        const refreshToken = generateToken2({
+            payload: { id: user._id, isLoggedIn: true },
+            signature:
+                user.role === roleTypes.Admin
+                    ? process.env.SYSTEM_REFRESH_TOKEN
+                    : process.env.USER_REFRESH_TOKEN,
+            options: { expiresIn: "7d" },
+        });
+
+        return successResponse({
+            res,
+            message: "Welcome User to your account (login)",
+            status: 200,
+            data: {
+                token: {
+                    accessToken,
+                    refreshToken,
+                },
+            },
+        });
+    }
+);
+
+
+
 export const login = errorAsyncHandler(
     async (req, res, next) => {
 
@@ -16,7 +93,7 @@ export const login = errorAsyncHandler(
         // const user = await userModel.findOne({email});
         const user = await dbService.findOne({
             model: userModel,
-            filter: {email}
+            filter: {email , deleted: {$exists: false}}
         });
 
         if(!user){
@@ -34,7 +111,7 @@ export const login = errorAsyncHandler(
             return next(new Error("In_valid account password not match" ,{cause: 404}));
         }
         
-        user.deleted = false;
+        // user.deleted = false;
         await user.save();
         
         

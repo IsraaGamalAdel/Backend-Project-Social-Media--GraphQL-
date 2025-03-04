@@ -38,7 +38,7 @@ export const decodeToken = async ({authorization = "" , tokenType = tokenTypes.a
     // const user = await userModel.findOne({_id: decoded.id , deleted: false});
     const user = await dbService.findOne({
         model: userModel,
-        filter: {_id: decoded.id , deleted: false}
+        filter: {_id: decoded.id , deleted: {$exists: false}}
     });
         
     if(!user){

@@ -9,6 +9,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { createHandler } from 'graphql-http/lib/use/express';
 import { schema } from './modules/modules.schema.js';
+import chatController from './modules/chat/chat.controller.js';
 
 
 const bootstrap = async (app , express) => {
@@ -31,6 +32,7 @@ const bootstrap = async (app , express) => {
     app.use('/auth' , authController);
     app.use('/users' , usersController);
     app.use('/posts' , postController)
+    app.use('/chat' , chatController);
 
     app.use(globalErrorHandling);
 

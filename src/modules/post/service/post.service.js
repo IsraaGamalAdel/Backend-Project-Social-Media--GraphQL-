@@ -6,6 +6,8 @@ import cloudinary from './../../../utils/multer/cloudinary.js';
 import { roleTypes } from '../../../middleware/auth.middleware.js';
 import { commentModel } from '../../../DB/model/Comment.model.js';
 import { pagination } from '../../../utils/security/pagination.security.js';
+import { socketConnection } from '../../../DB/model/User.model.js';
+import { getIo } from '../../chat/chat.socket.controller.js';
 
 
 const populateList = [
@@ -236,6 +238,8 @@ export const likePost = errorAsyncHandler(
             }
         })
 
+        getIo().to(socketConnection.get( post.userId.toString() )).emit("likePost", { postId: req.params.postId , likedBy: req.user._id , action });
+        
         return post? successResponse({ res, message: "freeze Post" ,  status:200 , data: {post}})
             : next(new Error("Post not found" , {cause: 404}))
         ;
