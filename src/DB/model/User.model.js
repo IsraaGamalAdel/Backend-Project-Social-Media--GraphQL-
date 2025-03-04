@@ -45,7 +45,9 @@ const users =  new Schema({
     //password
     password:{
         type: String,
-        required: true
+        required: (data) => {
+            return data?.provider === providerTypes.google ? false : true
+        }
     },
     // OTP Forgot-Password
     forgotPasswordOTP: String,

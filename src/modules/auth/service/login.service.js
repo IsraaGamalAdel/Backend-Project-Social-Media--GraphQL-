@@ -1,10 +1,11 @@
-import {userModel} from "../../../DB/model/User.model.js";
+import {providerTypes, userModel} from "../../../DB/model/User.model.js";
 import { roleTypes } from '../../../middleware/auth.middleware.js';
 import { errorAsyncHandler } from "../../../utils/response/error.response.js";
 import { successResponse } from '../../../utils/response/success.response.js';
 import {  decodeToken, generateToken2, tokenTypes, verifyToken2 } from "../../../utils/token/token.js";
 import { compareHash, generateHash } from "../../../utils/security/hash.security.js";
 import * as dbService from '../../../DB/db.service.js';
+import {OAuth2Client} from 'google-auth-library' ;
 
 
 
@@ -21,6 +22,9 @@ export const signIn = errorAsyncHandler(
                 audience: process.env.WEB_CLIENT_ID
             });
             const payload = ticket.getPayload();
+            console.log('====================================');
+            console.log(payload);
+            console.log('====================================');
             return payload
         }
         const payload = await verify()
@@ -41,7 +45,7 @@ export const signIn = errorAsyncHandler(
                     userName: payload.name,
                     email: payload.email,
                     confirmEmail: payload.email_verified,
-                    // image: payload.picture,
+                    image: payload.picture,
                     provider: providerTypes.google
                 }
             })
@@ -93,11 +97,15 @@ export const login = errorAsyncHandler(
         // const user = await userModel.findOne({email});
         const user = await dbService.findOne({
             model: userModel,
-            filter: {email , deleted: {$exists: false}}
+            filter: {
+                email , 
+                provider: providerTypes.system ,
+                deleted: {$exists: false}
+            }
         });
 
         if(!user){
-            return next(new Error("In_valid account user not found" , {cause: 404}));
+            return next(new Error("In_valid account user not found or not provider" , {cause: 404}));
         }
         if(!user.confirmEmail){
             return next(new Error("In_valid account user not confirmEmail" , {cause: 401}));
